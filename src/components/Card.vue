@@ -24,6 +24,7 @@ withDefaults(defineProps<Props>(), {
   })
 });
 
+const points = ref(0); // Очки за правильные ответы
 const isFlipped = ref(false);
 
 function flipCard() {
