@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import SuccessIcon from '../icons/SuccessIcon.vue';
+import FailedIcon from '../icons/FailedIcon.vue';
 
 interface Props {
   index?: string | number;
@@ -10,7 +11,7 @@ interface Props {
     word: string;
     translation: string;
     state: 'opened' | 'closed';
-    status: 'success' | 'error';
+    status: 'success' | 'error' | 'both';
   };
 }
 
@@ -62,6 +63,7 @@ function flipCard() {
             <div>{{ index }}</div>
             <div class="icon-success">
                 <SuccessIcon v-if="data.status === 'success'" />
+                <FailedIcon v-else-if="data.status === 'error'" />
             </div>
         </legend>
 
@@ -73,7 +75,11 @@ function flipCard() {
           class="card__action"
           @click="flipCard"
         >
-        ЗАВЕРШЕНО
+          <div v-show="data.status === 'both'" class="both-status">
+            <FailedIcon />
+            <SuccessIcon />
+          </div>
+          <p v-show="data.status !== 'both'">ЗАВЕРШЕНО</p>
         </legend>
       </fieldset>
     </div>
@@ -164,5 +170,10 @@ function flipCard() {
     position: absolute;
     left: 160px;
     z-index: 11;
+}
+
+.both-status {
+    display: flex;
+    gap: 20px;
 }
 </style>
