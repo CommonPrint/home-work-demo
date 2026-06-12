@@ -15,6 +15,9 @@ async function getData() {
 onMounted(() => {
   getData().then((data) => {
     cardData.value = data;
+    cardData.value.every((item) => {
+      item.status = 'success';
+    });
   });
 });
 </script>

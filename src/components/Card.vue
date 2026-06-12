@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import SuccessIcon from '../icons/SuccessIcon.vue';
+import FailedIcon from '../icons/FailedIcon.vue';
 
 interface Props {
   index?: string | number;
@@ -8,6 +10,7 @@ interface Props {
   data: {
     word: string;
     translation: string;
+    status: 'success' | 'error' | 'both';
   };
 }
 
@@ -16,6 +19,7 @@ withDefaults(defineProps<Props>(), {
   data: () => ({
     word: '',
     translation: '',
+    status: 'success'
   })
 });
 
@@ -55,6 +59,10 @@ function flipCard() {
       <fieldset class="card__face card__face--back">
         <legend class="card__index card__index--back">
             <div>{{ index }}</div>
+            <div class="icon-success">
+                <SuccessIcon v-if="data.status === 'success'" />
+                <FailedIcon v-else-if="data.status === 'error'" />
+            </div>
         </legend>
 
         <div class="card__content">
@@ -65,7 +73,11 @@ function flipCard() {
           class="card__action"
           @click="flipCard"
         >
-          ЗАВЕРШЕНО
+          <div v-show="data.status === 'both'" class="both-status">
+            <FailedIcon />
+            <SuccessIcon />
+          </div>
+          <p v-show="data.status !== 'both'">ЗАВЕРШЕНО</p>
         </legend>
       </fieldset>
     </div>
