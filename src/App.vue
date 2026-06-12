@@ -1,27 +1,22 @@
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import Card from './components/Card.vue';
 
-const cardData = ref([
-  {
-    word: 'car',
-    translation: 'автомобиль',
-    state: 'closed',
-    status: 'success'
-  },
-  {
-    word: 'window',
-    translation: 'стекло',
-    state: 'opened',
-    status: 'error'
-  },  
-  {
-    word: 'camels',
-    translation: 'караван верблюдов',
-    state: 'opened',
-    status: 'both'
-  },
-]);
+const cardData = ref([]);
+
+async function getData() {
+  const res = await fetch(`http://localhost:8080/api/random-words`)
+  if(res.status != 200) {
+    return;
+  }
+  return await res.json();
+}
+
+onMounted(() => {
+  getData().then((data) => {
+    cardData.value = data;
+  });
+});
 </script>
 
 <template>
@@ -36,5 +31,6 @@ const cardData = ref([
 .row {
   display: flex;
   gap: 20px;
+  flex-wrap: wrap;
 }
 </style>
