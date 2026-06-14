@@ -6,7 +6,11 @@ const cardData = ref([]);
 const activeCount = ref(0);
 const countLength = ref(0);
 
+const points = ref(0); // Очки за правильные ответы
+
+provide("points", points);
 provide("activeCount", activeCount);
+
 
 async function getData() {
   const res = await fetch(`http://localhost:8080/api/random-words`)
@@ -37,6 +41,7 @@ onMounted(() => {
 });
 
 const restart = () => {
+  points.value = 0;
   activeCount.value = 0;
   loadData();
 }
@@ -48,6 +53,7 @@ const restart = () => {
       <Card :data="item" />
     </li>
   </ul>
+  <p>Count: {{ points }}</p>
   <button 
     class="btn"
     :disabled="activeCount !== countLength" 

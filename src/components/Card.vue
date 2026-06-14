@@ -5,9 +5,9 @@ import FailedIcon from '../icons/FailedIcon.vue';
 
 const { data } = defineProps(['data']);
 
-const points = ref(0); // Очки за правильные ответы
 const isFlipped = ref(false);
 const activeCount = inject<Ref<number>>("activeCount")!;
+const points = inject<Ref<number>>('points');
 
 function flipCard() {
   isFlipped.value = !isFlipped.value;
@@ -16,9 +16,10 @@ function flipCard() {
 function correctWord(i, boolVal) {
   if (data.isCorrect === boolVal) {
     data.status = 'success'
-    points.value++;
+    points.value += 10;
   } else {
     data.status = 'error'
+    points.value -= 4;
   }
   data.state = 'opened';
   activeCount.value++;
