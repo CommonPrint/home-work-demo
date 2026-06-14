@@ -1,8 +1,12 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { provide, onMounted, ref } from 'vue';
 import Card from './components/Card.vue';
 
 const cardData = ref([]);
+const activeCount = ref(0);
+const countLength = ref(0);
+
+provide("activeCount", activeCount);
 
 async function getData() {
   const res = await fetch(`http://localhost:8080/api/random-words`)
@@ -12,14 +16,30 @@ async function getData() {
   return await res.json();
 }
 
-onMounted(() => {
+function loadData() {
   getData().then((data) => {
     cardData.value = data;
-    cardData.value.every((item) => {
-      item.status = 'success';
+    cardData.value.map((item, index) => {
+      if (index === 2 || index === 5) {
+        item.isCorrect = false;
+      } else {
+        item.isCorrect = true;
+      }
+      item.index = index;
+      item.state = 'closed';
     });
+    countLength.value = cardData.value.length;
   });
+}
+
+onMounted(() => {
+  loadData();
 });
+
+const restart = () => {
+  activeCount.value = 0;
+  loadData();
+}
 </script>
 
 <template>
@@ -28,6 +48,11 @@ onMounted(() => {
       <Card :data="item" />
     </li>
   </ul>
+  <button 
+    class="btn"
+    :disabled="activeCount !== countLength" 
+    @click="restart"
+  >Начать заново</button>
 </template>
 
 <style scoped>
@@ -35,5 +60,23 @@ onMounted(() => {
   display: flex;
   gap: 20px;
   flex-wrap: wrap;
+  justify-content: center;
+}
+
+.btn {
+  width: fit-content;
+  align-self: center;
+  color: #fff;
+  background: #008BFE;
+  border-radius: 25px;
+  padding: 16px 30px;
+  font-size: 20px;
+  margin-bottom: 40px;
+}
+
+.btn:disabled {
+  cursor: disabled;
+  background: gray;
+  color: #000;
 }
 </style>

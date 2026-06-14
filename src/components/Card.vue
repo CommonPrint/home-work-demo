@@ -1,33 +1,27 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, inject, Ref } from 'vue';
 import SuccessIcon from '../icons/SuccessIcon.vue';
 import FailedIcon from '../icons/FailedIcon.vue';
 
-interface Props {
-  index?: string | number;
-  front: string;
-  back: string;
-  data: {
-    word: string;
-    translation: string;
-    status: 'success' | 'error' | 'both';
-  };
-}
-
-withDefaults(defineProps<Props>(), {
-  index: '*',
-  data: () => ({
-    word: '',
-    translation: '',
-    status: 'success'
-  })
-});
+const { data } = defineProps(['data']);
 
 const points = ref(0); // Очки за правильные ответы
 const isFlipped = ref(false);
+const activeCount = inject<Ref<number>>("activeCount")!;
 
 function flipCard() {
   isFlipped.value = !isFlipped.value;
+}
+
+function correctWord(i, boolVal) {
+  if (data.isCorrect === boolVal) {
+    data.status = 'success'
+    points.value++;
+  } else {
+    data.status = 'error'
+  }
+  data.state = 'opened';
+  activeCount.value++;
 }
 </script>
 
@@ -40,7 +34,11 @@ function flipCard() {
       <!-- FRONT -->
       <fieldset class="card__face card__face--front">
         <legend class="card__index">
-            {{ index }}
+            <div>{{ data.index }}</div>
+            <div class="icon-success">
+                <SuccessIcon v-if="data.status === 'success'" />
+                <FailedIcon v-else-if="data.status === 'error'" />
+            </div>
         </legend>
 
         <div class="card__content">
@@ -48,6 +46,7 @@ function flipCard() {
         </div>
 
         <legend
+          v-show="!data.status"
           class="card__action"
           @click="flipCard"
         >
@@ -57,8 +56,8 @@ function flipCard() {
 
       <!-- BACK -->
       <fieldset class="card__face card__face--back">
-        <legend class="card__index card__index--back">
-            <div>{{ index }}</div>
+        <legend v-show="data.state === 'opened'" class="card__index card__index--back">
+            <div>{{ data.index }}</div>
             <div class="icon-success">
                 <SuccessIcon v-if="data.status === 'success'" />
                 <FailedIcon v-else-if="data.status === 'error'" />
@@ -70,14 +69,14 @@ function flipCard() {
         </div>
 
         <legend
+          v-show="data.state === 'closed'"
           class="card__action"
           @click="flipCard"
         >
-          <div v-show="data.status === 'both'" class="both-status">
-            <FailedIcon />
-            <SuccessIcon />
+          <div class="both-status">
+            <FailedIcon @click="correctWord(data.index, false)" />
+            <SuccessIcon @click="correctWord(data.index, true)" />
           </div>
-          <p v-show="data.status !== 'both'">ЗАВЕРШЕНО</p>
         </legend>
       </fieldset>
     </div>
@@ -131,6 +130,7 @@ function flipCard() {
 
 .card__index {
     position: absolute;
+    display: flex;
     font-size: 24px;
     top: -14px;
     left: 16px;
